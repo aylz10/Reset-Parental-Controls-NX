@@ -104,6 +104,18 @@ Result pctlDeletePairing(void)
     return serviceDispatch(pctlGetServiceSession_Service(), 1941);
 }
 
+// works?
+Result pctlStopPlayTimer(void)
+{
+    return serviceDispatch(pctlGetServiceSession_Service(), 1452);
+}
+
+// works?
+Result pctlStartPlayTimer(void)
+{
+    return serviceDispatch(pctlGetServiceSession_Service(), 1451);
+}
+
 void init_app(void)
 {
     consoleInit(NULL);
@@ -125,31 +137,39 @@ void print_display(const char *message)
 void print_lock(const char *message)
 {
     print_display(message);
+    PadState pad;
+    padInitializeDefault(&pad);
     while (appletMainLoop())
     {
-        hidScanInput();
-        uint64_t k = hidKeysDown(CONTROLLER_P1_AUTO);
-        if (k & KEY_B) break;
+        padUpdate(&pad);
+        uint64_t k = padGetButtonsDown(&pad);
+        if (k & HidNpadButton_B) break;
     }
 }
 
 int main(int argc, char *argv[])
 {
     init_app();
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
 
     print_display("Reset Parental Controls: Reseting the pin made easy!\n\n\n\n");
 
+    print_display("Press (L) to stop the play timer\n\n");
+    print_display("Press (R) to start the play timer\n\n");
     print_display("Press (A) to set parental control pin\n\n");
     print_display("Press (X) to delete parental controls\n\n");
     print_display("Press (Y) to remove parental control app pairing\n\n");
     print_display("Press (B) to exit\n\n");
 
+    PadState pad;
+    padInitializeDefault(&pad);
+
     while (appletMainLoop())
     {
-        hidScanInput();
-        uint64_t k = hidKeysDown(CONTROLLER_P1_AUTO);
+        padUpdate(&pad);
+        uint64_t k = padGetButtonsDown(&pad);
 
-        if (k & KEY_A)
+        if (k & HidNpadButton_A)
         {
             pctlExit();
 
@@ -165,7 +185,33 @@ int main(int argc, char *argv[])
             pctlInitialize();
         }
 
-        if (k & KEY_X)
+        if (k & HidNpadButton_L)
+        {
+
+            if (R_FAILED(pctlStopPlayTimer()))
+            {
+                print_display("Failed to stop play timer\n\n");
+            }
+            else
+            {
+                print_display("\n\n\n\nStopped play timer!\n\n\n\n");
+            }
+        }
+
+        if (k & HidNpadButton_R)
+        {
+
+            if (R_FAILED(pctlStartPlayTimer()))
+            {
+                print_display("Failed to start play timer\n\n");
+            }
+            else
+            {
+                print_display("\n\n\n\nStarted play timer!\n\n\n\n");
+            }
+        }
+
+        if (k & HidNpadButton_X)
         {
             if (R_FAILED(pctlDeleteParentalControls()))
             {
@@ -177,7 +223,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (k & KEY_Y)
+        if (k & HidNpadButton_Y)
         {
             if (R_FAILED(pctlDeletePairing()))
             {
@@ -189,7 +235,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (k & KEY_B)
+        if (k & HidNpadButton_B)
         {
             break;
         }
