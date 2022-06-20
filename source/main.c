@@ -80,11 +80,12 @@ Result pctlGetPinCodeLength(uint32_t *out)
     return serviceDispatchOut(pctlGetServiceSession_Service(), 1206, *out);
 }
 
+/*
 // doesn't work
 Result pctlGetPinCode(uint32_t *out)
 {
     return serviceDispatchOut(pctlGetServiceSession_Service(), 1208, *out);
-}
+}*/
 
 // doesn't work
 Result pctlPostEnableAllFeatures(void)
@@ -104,13 +105,13 @@ Result pctlDeletePairing(void)
     return serviceDispatch(pctlGetServiceSession_Service(), 1941);
 }
 
-// works?
+// works
 Result pctlStopPlayTimer(void)
 {
     return serviceDispatch(pctlGetServiceSession_Service(), 1452);
 }
 
-// works?
+// works
 Result pctlStartPlayTimer(void)
 {
     return serviceDispatch(pctlGetServiceSession_Service(), 1451);
@@ -147,6 +148,20 @@ void print_lock(const char *message)
     }
 }
 
+// Huge thank you to @shadowninja108 on Github
+typedef struct {
+    char mData[0xA];
+} PinCode;
+
+// works
+Result pctlGetPinCode(u32* lengthOut, PinCode *codeOut)
+{
+    return serviceDispatchOut(pctlGetServiceSession_Service(), 1208, *lengthOut,
+        .buffer_attrs = { SfBufferAttr_HipcPointer | SfBufferAttr_Out },
+        .buffers = { { codeOut, sizeof(*codeOut) } },
+    );
+}
+
 int main(int argc, char *argv[])
 {
     init_app();
@@ -154,6 +169,7 @@ int main(int argc, char *argv[])
 
     print_display("Reset Parental Controls: Reseting the pin made easy!\n\n\n\n");
 
+    print_display("Press (ZL) to see the pin\n\n");
     print_display("Press (L) to stop the play timer\n\n");
     print_display("Press (R) to start the play timer\n\n");
     print_display("Press (A) to set parental control pin\n\n");
@@ -183,6 +199,27 @@ int main(int argc, char *argv[])
             }
             
             pctlInitialize();
+        }
+
+        if (k & HidNpadButton_ZL)
+        {
+
+          printf("Testing...\n");
+          consoleUpdate(NULL);
+          PinCode pin = {};
+          u32 length;
+          Result r = pctlGetPinCode(&length, &pin);
+          if(R_FAILED(r)) {
+              printf("Failed (%x)\n", r);
+              printf("Length (%x)\n", length);
+              printf("Pin (%s)\n", pin.mData);
+              consoleUpdate(NULL);
+          } else {
+            printf("Success (%x)\n", r);
+            printf("Length (%x)\n", length);
+            printf("Pin (%s)\n", pin.mData);
+            consoleUpdate(NULL);
+          }
         }
 
         if (k & HidNpadButton_L)
