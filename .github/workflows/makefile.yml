@@ -10,6 +10,21 @@ jobs:
       - uses: actions/checkout@master
         with:
           fetch-depth: 1
+      - name: Setup DEVKITPRO
+        run: |
+          # 安装依赖
+          sudo apt update
+          sudo apt install -y libssl-dev
+          # 下载最新的 devkitPro 安装脚本
+          wget -qO- https://devkitpro.org/updates/devkitpro.sh | bash
+   
+          # 设置环境变量
+          echo "export DEVKITPRO=$(pwd)/devkitpro" >> $GITHUB_ENV
+          echo "export DEVKITARMPRO=$(pwd)/devkitpro/devkitARMpro" >> $GITHUB_ENV
+          echo "export PATH=$PATH:$DEVKITPRO/tools/bin:$DEVKITPRO/tools/arm-none-eabi/bin" >> $GITHUB_ENV
+   
+          # 验证安装
+          ctrulib_tool --version
       - name: Run Makefile
         env:
           TOKEN: ${{ secrets.TOKEN }}
