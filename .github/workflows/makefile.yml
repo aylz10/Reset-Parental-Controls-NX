@@ -31,7 +31,10 @@ jobs:
       - name: Run Makefile
         env:
           TOKEN: ${{ secrets.TOKEN }}
-        run: make all
+          DEVKITPRO: /opt/devkitpro
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          make all
       - name: 打包应用程序
         run: |
           find . -name '*.nro' | xargs zip -r app.zip
