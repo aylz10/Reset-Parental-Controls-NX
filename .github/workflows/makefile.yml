@@ -15,9 +15,12 @@ jobs:
           # 安装依赖
           sudo apt update
           sudo apt install -y libssl-dev
+          sudo apt-get git wget install libxml2 libstdc++6 gpg xz-utils make -y
           # 下载最新的 devkitPro 安装脚本
           #wget -qO- https://devkitpro.org/updates/devkitpro.sh | bash
-          sudo apt install devkitpro
+          wget https://github.com/devkitPro/pacman/releases/download/devkitpro-pacman-1.0.1/devkitpro-pacman.deb
+          RUN dpkg -i devkitpro-pacman.deb && dkp-pacman -S switch-dev --noconfirm
+          RUN source /etc/profile.d/devkit-env.sh
    
           # 设置环境变量
           echo "export DEVKITPRO=$(pwd)/devkitpro" >> $GITHUB_ENV
