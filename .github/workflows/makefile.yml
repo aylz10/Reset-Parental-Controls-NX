@@ -1,27 +1,26 @@
-name: Makefile CI
-
+name: make-master
+ 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
+  workflow_dispatch:
+ 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-
-    - name: configure
-      run: ./configure
-
-    - name: Install dependencies
-      run: make
-
-    - name: Run check
-      run: make check
-
-    - name: Run distcheck
-      run: make distcheck
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+      - name: Run Makefile
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        run: make all
+      - name: 打包应用程序
+        run: |
+          find . -name '*.nro' | xargs zip -r app.zip
+        working-directory: ./
+  
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app
+          path: app.zip
