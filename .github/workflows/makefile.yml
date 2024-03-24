@@ -15,7 +15,6 @@ jobs:
           # 安装依赖
           sudo apt update
           sudo apt install -y libssl-dev
-          sudo apt install -y wget install libxml2 libstdc++6 gpg xz-utils make
           # 下载最新的 devkitPro 安装脚本
           #wget -qO- https://devkitpro.org/updates/devkitpro.sh | bash
           wget https://github.com/devkitPro/pacman/releases/download/devkitpro-pacman-1.0.1/devkitpro-pacman.deb
