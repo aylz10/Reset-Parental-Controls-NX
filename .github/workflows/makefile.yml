@@ -22,8 +22,8 @@ jobs:
           sudo ./install-devkitpro-pacman
    
           # 设置环境变量
-          echo "export DEVKITPRO=$(pwd)/devkitpro" >> $GITHUB_ENV
-          echo "export DEVKITARMPRO=$(pwd)/devkitpro/devkitARMpro" >> $GITHUB_ENV
+          echo "export DEVKITPRO=/opt/devkitpro" >> $GITHUB_ENV
+          echo "export DEVKITARMPRO=/opt/devkitpro/devkitARMpro" >> $GITHUB_ENV
           echo "export PATH=$PATH:$DEVKITPRO/tools/bin:$DEVKITPRO/tools/arm-none-eabi/bin" >> $GITHUB_ENV
    
           # 验证安装
